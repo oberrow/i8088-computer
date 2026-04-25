@@ -23,39 +23,7 @@ section .text
 _entry:
     cld
     cli
- 
-    xor ax, ax
-    mov ss, ax
-    mov sp, stack_top   
-
-    mov ax, 0xf000
-    mov ds, ax
-    xor si,si ; si = 0
-    ; Source is 0xf000:0x0000, aka 0xf0'0000 (ROM begin, __data_loadaddr)
-
-    xor ax, ax
-    mov es, ax
-    mov di, __data_start
-    ; Destination is 0x0000:__data_start, (RAM begin + __data_start)
-
-    mov cx, __data_end
-    mov ax, __data_start
-    sub cx, ax
-    ; Length is __data_end - __data_start
-
-    rep movsb
-
     jmp entry
-
-set_ds:
-    pop ax
-    mov ds, ax
-    ret
-
-set_es:
-    pop ax
-    mov es, ax
-    ret
 
 section .rstvec
 ; At address 0xffff0

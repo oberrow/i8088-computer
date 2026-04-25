@@ -10,23 +10,27 @@ NASM := nasm
 CFLAGS := -O2
 PAGER := less
 
+DEPFILES := $(wildcard bin/*.d)
+
 all: rom
 
 bin/entry.o: src/entry.asm | bin
-	$(NASM) $(NASMFLAGS) -felf32 $< -o $@
+	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/io.o: src/io.asm | bin
-	$(NASM) $(NASMFLAGS) -felf32 $< -o $@
+	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
+bin/mem.asm.o: src/mem.asm | bin
+	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/main.o: src/main.c | bin
-	$(CC) -c $(CFLAGS) -ffreestanding $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
 bin/mem.o: src/mem.c | bin
-	$(CC) -c $(CFLAGS) -ffreestanding -fno-tree-loop-distribute-patterns $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding -fno-tree-loop-distribute-patterns $< -o $@
 
-bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o | bin
-	$(LD) -o$@ $(LDFLAGS) -T $^
+bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o | bin
+	$(LD) -o$@ $(LDFLAGS) --noinhibit-exec -T $^
 
 rom: bin/rom.elf | bin
 	$(OBJCOPY) -O binary --gap-fill 0xcc --pad-to 0x10000 bin/rom.elf rom
-	$(SIZE) bin/rom.elf
+	$(SIZE) -B bin/rom.elf
 
 bin:
 	mkdir -p bin
@@ -36,3 +40,7 @@ clean:
 
 disassemble: bin/rom.elf
 	ia16-elf-objdump -d bin/rom.elf  -M intel-mnemonic,i8086 | $(PAGER)
+
+ifneq ($(DEPFILES),)
+include $(DEPFILES)
+endif

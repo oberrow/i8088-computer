@@ -1,0 +1,10 @@
+{
+    "clangd.arguments": ["--log=verbose", 
+        "--pretty", 
+        "--background-index", 
+        "--clang-tidy",
+        "--header-insertion=never",
+        "--compile-commands-dir=${workspaceFolder}/bin/",
+        "--query-driver=/home/oberrow/bin/ia16-elf-gcc"
+    ]
+}

@@ -8,7 +8,7 @@ MEMORY {
 
 SECTIONS
 {
-    .ivt (NOLOAD) : { *(.stack) } > ram
+    .ivt (NOLOAD) : { *(.ivt) } > ram
     _bss_begin = .;
     .bss (NOLOAD) : { *(.bss) *(.bss.*) *(COMMON) } > ram
     . = ALIGN(4);
@@ -26,5 +26,4 @@ SECTIONS
     .text : { *(.text) *(.text.*) } > rom
     . = 0xffff0;
     .rstvec : { *(.rstvec) } > rst
-    /DISCARD/ : { *(*) }
 }

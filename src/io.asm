@@ -12,23 +12,47 @@ global cli
 global sti
 
 outb:
-    pop dx
-    pop ax
+    push bp
+    mov bp, sp
+
+    mov ax, ss:[bp+0x6]
+    mov dx, ss:[bp+0x4]
     out dx, al
+    
+    leave
     ret
+
 outw:
-    pop dx
-    pop ax
+    push bp
+    mov bp, sp
+    
+    mov ax, ss:[bp+0x6]
+    mov dx, ss:[bp+0x4]
     out dx, ax
+    
+    leave
     ret
+
 inb:
-    pop dx
+    push bp
+    mov bp, sp
+    
+    mov dx, ss:[bp+0x4]
     in al, dx
+    
+    leave
     ret
+
 inw:
-    pop dx
+    push bp
+    mov bp, sp
+    
+    mov dx, ss:[bp+0x4]
     in ax, dx
+    
+    leave
     ret
+
 cli: 
     cli
     ret
