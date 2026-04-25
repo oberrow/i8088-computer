@@ -22,10 +22,12 @@ bin/mem.asm.o: src/mem.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/main.o: src/main.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+bin/pic.o: src/pic.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
 bin/mem.o: src/mem.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding -fno-tree-loop-distribute-patterns $< -o $@
 
-bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o | bin
+bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o | bin
 	$(LD) -o$@ $(LDFLAGS) --noinhibit-exec -T $^
 
 rom: bin/rom.elf | bin
