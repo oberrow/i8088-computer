@@ -14,3 +14,6 @@ uint8_t inb(uint16_t addr);
 uint16_t inw(uint16_t addr);
 void cli();
 void sti();
+
+#define PIC_BASE 0x100
+#define UART_BASE 0x200
