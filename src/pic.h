@@ -15,3 +15,5 @@ void pic_set_mask(uint8_t mask);
 uint8_t pic_get_mask(void);
 uint8_t pic_get_irr(void);
 uint8_t pic_get_isr(void);
+
+void ivt_init();
