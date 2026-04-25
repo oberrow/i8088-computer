@@ -5,6 +5,9 @@
 BITS 16
 
 global _entry
+global set_ds
+global set_es
+
 extern entry
 extern __data_end
 extern __data_start
@@ -43,7 +46,16 @@ _entry:
     rep movsb
 
     jmp entry
-.end:
+
+set_ds:
+    pop ax
+    mov ds, ax
+    ret
+
+set_es:
+    pop ax
+    mov es, ax
+    ret
 
 section .rstvec
 ; At address 0xffff0
