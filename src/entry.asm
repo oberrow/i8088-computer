@@ -3,6 +3,7 @@
 ; Copyright (c) 2026 Omar Berrow
 
 BITS 16
+CPU 8086
 
 global _entry
 global set_ds

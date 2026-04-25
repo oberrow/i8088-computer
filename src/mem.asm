@@ -3,6 +3,7 @@
 ; Copyright (c) 2026 Omar Berrow
 
 BITS 16
+CPU 8086
 
 global memcpy_far
 global set_ds
@@ -23,7 +24,8 @@ memcpy_far:
     
     mov ax, ss:[bp+0x4]
 
-    leave
+    mov sp, bp
+    pop bp
     ret
 
 set_ds:
@@ -33,7 +35,8 @@ set_ds:
     mov ax, ss:[bp+0x4]
     mov ds, ax
     
-    leave
+    mov sp, bp
+    pop bp
     ret
 
 set_es:
@@ -43,5 +46,6 @@ set_es:
     mov ax, ss:[bp+0x4]
     mov es, ax
     
-    leave
+    mov sp, bp
+    pop bp
     ret

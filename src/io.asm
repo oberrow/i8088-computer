@@ -3,6 +3,7 @@
 ; Copyright (c) 2026 Omar Berrow
 
 BITS 16
+CPU 8086
 
 global outb
 global outw
@@ -19,7 +20,8 @@ outb:
     mov dx, ss:[bp+0x4]
     out dx, al
     
-    leave
+    mov sp, bp
+    pop bp
     ret
 
 outw:
@@ -30,7 +32,8 @@ outw:
     mov dx, ss:[bp+0x4]
     out dx, ax
     
-    leave
+    mov sp, bp
+    pop bp
     ret
 
 inb:
@@ -40,7 +43,8 @@ inb:
     mov dx, ss:[bp+0x4]
     in al, dx
     
-    leave
+    mov sp, bp
+    pop bp
     ret
 
 inw:
@@ -50,7 +54,8 @@ inw:
     mov dx, ss:[bp+0x4]
     in ax, dx
     
-    leave
+    mov sp, bp
+    pop bp
     ret
 
 cli: 
