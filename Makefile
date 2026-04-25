@@ -8,6 +8,7 @@ OBJCOPY := ia16-elf-objcopy
 SIZE := ia16-elf-size
 NASM := nasm
 CFLAGS := -O2
+PAGER := less
 
 all: rom
 
@@ -32,3 +33,6 @@ bin:
 
 clean:
 	rm bin/*
+
+disassemble: bin/rom.elf
+	ia16-elf-objdump -d bin/rom.elf  -M intel-mnemonic,i8086 | $(PAGER)
