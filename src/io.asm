@@ -15,6 +15,7 @@ global clis
 global resf
 global get_flags
 global hlt
+global delay_us
 
 outb:
     push bp
@@ -91,4 +92,17 @@ get_flags:
     ret
 hlt:
     hlt
+    ret
+
+delay_cycles:
+    push bp
+    mov bp, sp
+
+    mov cx, ss:[bp+0x4]
+
+.loop:
+    loop .loop
+
+    mov sp, bp
+    pop bp
     ret
