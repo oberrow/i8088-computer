@@ -15,7 +15,7 @@ global clis
 global resf
 global get_flags
 global hlt
-global delay_us
+global delay_cycles
 
 outb:
     push bp

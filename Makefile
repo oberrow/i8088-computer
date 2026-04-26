@@ -32,8 +32,10 @@ bin/uart.o: src/uart.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
 bin/except.o: src/except.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+bin/lcd.o: src/lcd.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
 
-bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o | bin
+bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o bin/lcd.o | bin
 	$(LD) -o$@ $(LDFLAGS) --noinhibit-exec -T $^
 
 rom: bin/rom.elf | bin
