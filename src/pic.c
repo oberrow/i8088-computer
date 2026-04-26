@@ -56,13 +56,21 @@ void except_nmi(struct irq_frame* frame);
 void except_bp(struct irq_frame* frame);
 void except_overflow(struct irq_frame* frame);
 
+uint16_t pic_spurious_irq_count;
+
+void spurious_irq(struct irq_frame* frame)
+{
+    (void)frame;
+    pic_spurious_irq_count++;
+}
+
 __attribute__((section(".text"))) void(*const irq_handlers[])(struct irq_frame* frame) = {
     except_div0,
     except_trap,
     except_nmi,
     except_bp,
     except_overflow,
-    [32]=0, 0, 0, 0, 0, 0, 0, uart_irq, 0
+    [32]=0, 0, 0, 0, 0, 0, 0, uart_irq, spurious_irq
 };
 
 extern void isr0();

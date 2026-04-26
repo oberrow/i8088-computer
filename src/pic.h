@@ -18,3 +18,5 @@ uint8_t pic_get_irr(void);
 uint8_t pic_get_isr(void);
 
 void ivt_init();
+
+extern uint16_t pic_spurious_irq_count;
