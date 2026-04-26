@@ -12,6 +12,7 @@ PAGER := less
 
 DEPFILES := $(wildcard bin/*.d)
 
+.PHONY: all
 all: rom
 
 bin/entry.o: src/entry.asm | bin
@@ -39,8 +40,12 @@ bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm
 	$(LD) -o$@ $(LDFLAGS) --noinhibit-exec -T $^
 
 rom: bin/rom.elf | bin
-	$(OBJCOPY) -O binary --gap-fill 0xcc --pad-to 0x10000 bin/rom.elf rom
-	$(SIZE) -B bin/rom.elf
+	@$(OBJCOPY) -O binary --gap-fill 0xcc --pad-to 0x10000 bin/rom.elf rom
+	@$(SIZE) -B bin/rom.elf
+
+.PHONY: size
+size: bin/rom.elf
+	@$(SIZE) -B bin/rom.elf
 
 bin:
 	mkdir -p bin

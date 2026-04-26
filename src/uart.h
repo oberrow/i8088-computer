@@ -50,7 +50,7 @@ enum stop_bits {
 int uart_init(int baud_rate, uint8_t stop_bits, uint8_t data_bits, uint8_t parity_bit);
 char uart_readb(bool async);
 void uart_writeb(char c);
-// Can only read upto 512 bytes at once.
+// Can only read up to 512 bytes at once.
 // Returns the amount of bytes read.
 int uart_read(__far void* buf, int len, bool async);
 int uart_write(__far const void* buf, int len);
