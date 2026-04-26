@@ -11,6 +11,7 @@
 void pic_init();
 void pic_eoi();
 void pic_mask(uint8_t mask);
+void pic_clear_mask(uint8_t mask);
 void pic_set_mask(uint8_t mask);
 uint8_t pic_get_mask(void);
 uint8_t pic_get_irr(void);

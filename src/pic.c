@@ -10,6 +10,7 @@
 #include "io.h"
 #include "pic.h"
 #include "frame.h"
+#include "uart.h"
 
 void pic_init() {
     // ICW1
@@ -25,7 +26,10 @@ void pic_eoi() {
 }
 
 void pic_mask(uint8_t mask) {
-    pic_set_mask(mask|pic_get_mask());
+    pic_set_mask(mask | pic_get_mask());
+}
+void pic_clear_mask(uint8_t mask) {
+    pic_set_mask(pic_get_mask() & ~mask);
 }
 
 void pic_set_mask(uint8_t mask) {
@@ -58,7 +62,7 @@ __attribute__((section(".text"))) void(*const irq_handlers[])(struct irq_frame* 
     except_nmi,
     except_bp,
     except_overflow,
-    [32]=0, 0, 0, 0, 0, 0, 0, 0, 0
+    [32]=0, 0, 0, 0, 0, 0, 0, uart_irq, 0
 };
 
 extern void isr0();
@@ -76,8 +80,7 @@ extern void isr38();
 extern void isr39();
 extern void isr40();
 
-void ivt_init()
-{
+void ivt_init() {
     uint16_t *ivt = NULL;
     ivt[0*2+0] = (uint16_t)isr0;
     ivt[1*2+0] = (uint16_t)isr1;
