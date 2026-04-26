@@ -9,9 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifndef __ia16__
-#define __far
-#endif
+#include "extra.h"
 
 __far void *memcpy(void __far *dest, const void __far *src, size_t len);
 void *memcpy_far(void *dest, uint16_t es, const void *src, uint16_t ds, size_t len);

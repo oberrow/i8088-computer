@@ -11,6 +11,10 @@ global inb
 global inw
 global cli
 global sti
+global clis
+global resf
+global get_flags
+global hlt
 
 outb:
     push bp
@@ -63,4 +67,28 @@ cli:
     ret
 sti:
     sti
+    ret
+
+clis:
+    cli
+    pushf
+    pop ax
+    ret
+resf:
+    push bp
+    mov bp, sp
+
+    mov ax, ss:[bp+0x4]
+    push ax
+    popf
+
+    mov sp, bp
+    pop bp
+    ret
+get_flags:
+    pushf
+    pop ax
+    ret
+hlt:
+    hlt
     ret
