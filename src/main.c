@@ -7,6 +7,7 @@
 #include "io.h"
 #include "mem.h"
 #include "pic.h"
+#include "uart.h"
 
 extern char __data_loadaddr, __data_start, __data_end;
 
@@ -16,6 +17,8 @@ __attribute__((noreturn)) void entry() {
     pic_init();
     pic_mask(0xff);
     sti();
+
+    uart_init(9600, ONE_STOPBIT, EIGHT_DATABITS, PARITYBIT_NONE);
     
     while (1)
         ;
