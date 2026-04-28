@@ -64,7 +64,7 @@ void spurious_irq(struct irq_frame* frame)
     pic_spurious_irq_count++;
 }
 
-__attribute__((section(".text"))) void(*const irq_handlers[])(struct irq_frame* frame) = {
+__attribute__((section(".flash"))) void(*const irq_handlers[])(struct irq_frame* frame) = {
     except_div0,
     except_trap,
     except_nmi,

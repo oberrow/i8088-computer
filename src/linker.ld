@@ -28,6 +28,7 @@ SECTIONS
     } >ram AT >rom
     __data_loadaddr = LOADADDR(.data);
     .text : { *(.text) *(.text.*) } > rom
+    .flash : { *(.flash) *(.flash.*) } > rom
     . = 0xffff0;
     .rstvec : { *(.rstvec) } > rst
 }
