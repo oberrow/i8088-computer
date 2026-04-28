@@ -14,10 +14,11 @@ extern __data_end
 extern __data_start
 
 section .ivt
-times 256 dd 0
+ivt:
+    times 256 dd 0
 section .stack
 stack_bottom:
-    times 0x1fff resb 0
+    times 0x2000 db 0
 stack_top:
 section .text
 
