@@ -7,7 +7,9 @@
 #include "io.h"
 #include "mem.h"
 #include "pic.h"
+#include "stdbool.h"
 #include "uart.h"
+#include "lcd.h"
 
 extern char __data_loadaddr, __data_start, __data_end;
 
@@ -19,6 +21,12 @@ __attribute__((noreturn)) void entry() {
     sti();
 
     uart_init(9600, ONE_STOPBIT, EIGHT_DATABITS, PARITYBIT_NONE);
+    lcd_init();
+
+    char buf[] = "Hello, world!\r\n";
+    uart_write(buf, sizeof(buf));
+    for (int addr = 0; addr < (int)sizeof(buf); addr++)
+        lcd_write_byte(addr, buf[addr], LCD_ACCESS_DDRAM);
     
     while (1)
         ;
