@@ -40,7 +40,7 @@ bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm
 	$(LD) -o$@ $(LDFLAGS) --noinhibit-exec -T $^
 
 rom: bin/rom.elf | bin
-	@$(OBJCOPY) -O binary --gap-fill 0xcc --pad-to 0x10000 bin/rom.elf rom
+	@$(OBJCOPY) -O binary --gap-fill 0xff --pad-to 0x10000 bin/rom.elf rom
 	@$(SIZE) -B bin/rom.elf
 
 .PHONY: size
