@@ -48,7 +48,7 @@ int_handler_common:
 
 	mov bp, sp
 	
-	mov bx, ss:[bp+20]
+	mov bx, ss:[bp+18]
 	shl bx, 1
 	lea bx, [bx+irq_handlers]
 	push ds
