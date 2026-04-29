@@ -18,19 +18,17 @@
 static bool wait_for_bf()
 {
     uint32_t ms_passed = 0;
-    uint16_t flags = clis();
     // Wait 20ms for initialization
     do {
-        delay_cycles(US_IN_CYCLES(1000));
+        delay_ms(1);
     } while (ms_passed++ < 10 && inb(LCD_BASE) & BIT(7) /* Busy flag */);
-    resf(flags);
     return ~inb(LCD_BASE) & BIT(7);
 }
 
 void lcd_init() {
-    delay_cycles(US_IN_CYCLES(15*1000));
+    delay_ms(15);
     outb(LCD_BASE, 0x30);
-    delay_cycles(US_IN_CYCLES(41*100));
+    delay_ms(41);
     outb(LCD_BASE, 0x30);
     delay_cycles(US_IN_CYCLES(100));
     outb(LCD_BASE, 0x30);
