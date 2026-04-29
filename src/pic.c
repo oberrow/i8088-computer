@@ -78,7 +78,7 @@ extern void isr1();
 extern void isr2();
 extern void isr3();
 extern void isr4();
-extern void isr32();
+extern void timer_irq();
 extern void isr33();
 extern void isr34();
 extern void isr35();
@@ -95,7 +95,7 @@ void ivt_init() {
     ivt[2*2+0] = (uint16_t)isr2;
     ivt[3*2+0] = (uint16_t)isr3;
     ivt[4*2+0] = (uint16_t)isr4;
-    ivt[32*2+0] = (uint16_t)isr32;
+    ivt[32*2+0] = (uint16_t)timer_irq;
     ivt[33*2+0] = (uint16_t)isr33;
     ivt[34*2+0] = (uint16_t)isr34;
     ivt[35*2+0] = (uint16_t)isr35;

@@ -19,6 +19,10 @@ __attribute__((noreturn)) void entry() {
     pic_mask(0xff);
     sti();
 
+    // IRQ Line 0 is connected to a 1000hz square wave.
+    // This is the clock tick for the entire computer.
+    pic_clear_mask(BIT(0));
+    
     uart_init(9600, ONE_STOPBIT, EIGHT_DATABITS, PARITYBIT_NONE);
     lcd_init();
 

@@ -16,6 +16,12 @@ global resf
 global get_flags
 global hlt
 global delay_cycles
+global timer_irq
+
+section .data
+global current_tick_ms
+current_tick_ms: dd 0
+section .text
 
 outb:
     push bp
@@ -106,3 +112,9 @@ delay_cycles:
     mov sp, bp
     pop bp
     ret
+
+; IRQ Line 0 is connected to a 1000hz square wave.
+timer_irq:
+    add [current_tick_ms], 1
+    adc [current_tick_ms+2], 0
+    iret
