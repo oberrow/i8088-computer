@@ -28,7 +28,7 @@ __attribute__((noreturn)) void entry() {
 
     char buf[] = "Hello, world!\r\n";
     uart_write(buf, sizeof(buf));
-    for (int addr = 0; addr < (int)sizeof(buf); addr++)
+    for (int addr = 0; addr < (int)sizeof(buf) - 3; addr++)
         lcd_write_byte(addr, buf[addr], LCD_ACCESS_DDRAM);
     
     while (1)
