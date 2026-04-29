@@ -30,7 +30,7 @@ _entry:
 section .rstvec
 ; At address 0xffff0
 _rstvec:
-    jmp 0xf000:_entry
+    jmp 0xc000:_entry
 .end:
 
 times 0x10 - ($ - $$) db 0xff

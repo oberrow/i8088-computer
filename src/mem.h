@@ -18,3 +18,5 @@ int memcmp(const void  __far *src1, const void __far *src2, size_t len);
 
 void set_ds(uint16_t segment);
 void set_es(uint16_t segment);
+
+#define CODE_SEGMENT 0xc000

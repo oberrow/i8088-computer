@@ -1,13 +1,14 @@
 ENTRY(_entry)
 
 MEMORY {
-    ram (rwx) : ORIGIN = 0x0000, LENGTH = 64k
-    rom (rx)  : ORIGIN = 0x0000, LENGTH = 64k
-    rst (rx)  : ORIGIN = 0xfff0, LENGTH = 16
+    ram (rwx)  : ORIGIN = 0x0000, LENGTH = 64k
+    rom (rx)   : ORIGIN = 0x0000, LENGTH = 256K
+    rst (rx)   : ORIGIN = 0x3fff0, LENGTH = 16
 }
 
 SECTIONS
 {
+    . = 0x30000;
     _bss_begin = .;
     .bss (NOLOAD) : {
         *(.ivt)

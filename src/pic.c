@@ -11,6 +11,7 @@
 #include "pic.h"
 #include "frame.h"
 #include "uart.h"
+#include "mem.h"
 
 void pic_init() {
     // ICW1
@@ -105,7 +106,7 @@ void ivt_init() {
     ivt[39*2+0] = (uint16_t)isr39;
     ivt[40*2+0] = (uint16_t)isr40;
     for (int i = 0; i <= 4; i++)
-        ivt[i*2+1] = 0xf000;
+        ivt[i*2+1] = CODE_SEGMENT;
     for (int i = 32; i <= 40; i++)
-        ivt[i*2+1] = 0xf000;
+        ivt[i*2+1] = CODE_SEGMENT;
 }

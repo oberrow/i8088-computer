@@ -41,19 +41,21 @@ bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm
 
 rom: bin/rom.elf | bin
 	@$(OBJCOPY) -O binary --gap-fill 0xff --pad-to 0x10000 bin/rom.elf rom
-	@$(SIZE) -B bin/rom.elf
+	@$(SIZE) -xB bin/rom.elf
 
 .PHONY: size
 size: bin/rom.elf
-	@$(SIZE) -B bin/rom.elf
+	@$(SIZE) -xB bin/rom.elf
 
 bin:
 	mkdir -p bin
 
+.PHONY: clean
 clean:
 	rm bin/*
 	rm rom
 
+.PHONY: disassemble
 disassemble: bin/rom.elf
 	ia16-elf-objdump -d bin/rom.elf  -M intel-mnemonic,i8086 | $(PAGER)
 
