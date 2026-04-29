@@ -7,7 +7,6 @@
 #include "io.h"
 #include "mem.h"
 #include "pic.h"
-#include "stdbool.h"
 #include "uart.h"
 #include "lcd.h"
 
@@ -29,5 +28,5 @@ __attribute__((noreturn)) void entry() {
         lcd_write_byte(addr, buf[addr], LCD_ACCESS_DDRAM);
     
     while (1)
-        ;
+        hlt();
 }

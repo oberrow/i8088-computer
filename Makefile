@@ -37,7 +37,7 @@ bin/lcd.o: src/lcd.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
 
 bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o bin/lcd.o | bin
-	$(LD) -o$@ $(LDFLAGS) --noinhibit-exec -T $^
+	$(LD) -o$@ $(LDFLAGS) --no-check-sections -T $^
 
 rom: bin/rom.elf | bin
 	@$(OBJCOPY) -O binary --gap-fill 0xff --pad-to 0x10000 bin/rom.elf rom
