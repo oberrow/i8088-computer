@@ -71,7 +71,9 @@ __attribute__((section(".flash"))) void(*const irq_handlers[])(struct irq_frame*
     except_nmi,
     except_bp,
     except_overflow,
-    [32]=0, 0, 0, 0, 0, 0, 0, uart_irq, spurious_irq
+    [32+UART_IRQ_LINE] = uart_irq,
+    [32]=0, 0, 0, 0, 0, 0,
+    [32+7] = spurious_irq
 };
 
 extern void isr0();
@@ -88,6 +90,7 @@ extern void isr37();
 extern void isr38();
 extern void isr39();
 extern void isr40();
+extern __attribute__((noreturn)) void impossible_isr();
 
 void ivt_init() {
     uint16_t *ivt = NULL;
@@ -96,6 +99,10 @@ void ivt_init() {
     ivt[2*2+0] = (uint16_t)isr2;
     ivt[3*2+0] = (uint16_t)isr3;
     ivt[4*2+0] = (uint16_t)isr4;
+    for (int i = 5; i < 32; i++) {
+        ivt[i*2+0] = (uint16_t)impossible_isr;
+        ivt[i*2+1] = CODE_SEGMENT;
+    }
     ivt[32*2+0] = (uint16_t)timer_irq;
     ivt[33*2+0] = (uint16_t)isr33;
     ivt[34*2+0] = (uint16_t)isr34;
@@ -105,6 +112,10 @@ void ivt_init() {
     ivt[38*2+0] = (uint16_t)isr38;
     ivt[39*2+0] = (uint16_t)isr39;
     ivt[40*2+0] = (uint16_t)isr40;
+    for (int i = 41; i < 256; i++) {
+        ivt[i*2+0] = (uint16_t)impossible_isr;
+        ivt[i*2+1] = CODE_SEGMENT;
+    }
     for (int i = 0; i <= 4; i++)
         ivt[i*2+1] = CODE_SEGMENT;
     for (int i = 32; i <= 40; i++)

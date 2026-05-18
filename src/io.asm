@@ -115,6 +115,13 @@ delay_cycles:
 
 ; IRQ Line 0 is connected to a 1000hz square wave.
 timer_irq:
+    push ax
+    push dx
+    mov al, 0x20
+    mov dx, 0x20
+    out dx, al
+    pop dx
+    pop ax
     add [current_tick_ms], 1
     adc [current_tick_ms+2], 0
     iret

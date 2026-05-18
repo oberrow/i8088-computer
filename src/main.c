@@ -9,11 +9,17 @@
 #include "pic.h"
 #include "uart.h"
 #include "lcd.h"
+#include "extra.h"
 
 extern char __data_loadaddr, __data_start, __data_end;
 
+extern void gdbstub_initialize();
+#define GDBSTUB 1
+
+void *memcpy_far(void *dest, uint16_t es, const void *src, uint16_t ds, size_t len);
+
 __attribute__((noreturn)) void entry() {
-    memcpy_far(&__data_loadaddr, CODE_SEGMENT, &__data_start, 0x0000, &__data_end - &__data_start);
+    memcpy_far(&__data_start, 0x0000, &__data_loadaddr, CODE_SEGMENT, &__data_end - &__data_start);
     ivt_init();
     pic_init();
     pic_mask(0xff);
@@ -21,16 +27,26 @@ __attribute__((noreturn)) void entry() {
 
     // IRQ Line 0 is connected to a 1000hz square wave.
     // This is the clock tick for the entire computer.
-    pic_clear_mask(BIT(0));
+    // pic_clear_mask(BIT(0));
     
     uart_init(9600, ONE_STOPBIT, EIGHT_DATABITS, PARITYBIT_NONE);
-    lcd_init();
+    // lcd_init();
 
-    char buf[] = "Hello, world!\r\n";
-    uart_write(buf, sizeof(buf));
-    for (int addr = 0; addr < (int)sizeof(buf) - 3; addr++)
-        lcd_write_byte(addr, buf[addr], LCD_ACCESS_DDRAM);
-    
+    // char buf[] = "Hello, world!\r\n";
+    // uart_write(buf, sizeof(buf));
+    // for (int addr = 0; addr < (int)sizeof(buf) - 3; addr++)
+    //     lcd_write_byte(addr, buf[addr], LCD_ACCESS_DDRAM);
+
+#if GDBSTUB
+    gdbstub_initialize();
+    BP();
+#endif
+
     while (1)
         hlt();
+}
+
+void outs(uint16_t addr, const char* str) {
+    while (*str)
+        outb(addr, *str++);
 }

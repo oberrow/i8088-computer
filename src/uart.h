@@ -52,6 +52,6 @@ char uart_readb(bool async);
 void uart_writeb(char c);
 // Can only read up to 512 bytes at once.
 // Returns the amount of bytes read.
-int uart_read(__far void* buf, int len, bool async);
-int uart_write(__far const void* buf, int len);
+int uart_read(void* buf, int len, bool async);
+int uart_write(const void* buf, int len);
 void uart_irq(struct irq_frame* frame);

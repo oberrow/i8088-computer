@@ -11,6 +11,8 @@
 void outb(uint16_t addr, uint8_t val);
 void outw(uint16_t addr, uint16_t val);
 
+void outs(uint16_t addr, const char* str);
+
 uint8_t inb(uint16_t addr);
 uint16_t inw(uint16_t addr);
 
@@ -29,6 +31,13 @@ void delay_cycles(uint16_t cycles);
 #define PIC_BASE 0x100
 #define UART_BASE 0x200
 #define LCD_BASE 0x400
+#define SYSTEM_CONTROL_BASE 0x800
+
+#define TIMER_IRQ_LINE (0)
+// #define UART_IRQ_LINE (4)
+#define UART_IRQ_LINE (6)
+
+#define trigger_reset() outb(SYSTEM_CONTROL_BASE, 0b0001)
 
 extern uint32_t current_tick_ms;
 

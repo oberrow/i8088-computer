@@ -16,7 +16,7 @@ memcpy_far:
     mov di, ss:[bp+0x4]
     mov ax, ss:[bp+0x6]
     mov es, ax
-    mov di, ss:[bp+0x8]
+    mov si, ss:[bp+0x8]
     mov ax, ss:[bp+0xa]
     mov ds, ax
     mov cx, ss:[bp+0xc]

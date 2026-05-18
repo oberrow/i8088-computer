@@ -3,17 +3,20 @@
 # Copyright (c) 2026 Omar Berrow
 
 CC=ia16-elf-gcc
-LD := ia16-elf-ld
+LD := ia16-elf-gcc
 OBJCOPY := ia16-elf-objcopy
+OBJDUMP := ia16-elf-objdump
 SIZE := ia16-elf-size
 NASM := nasm
-CFLAGS := -O2
+NASMFLAGS += -g -F dwarf
+CFLAGS += -O0 -g -march=i8088 -mcmodel=small -ffreestanding
 PAGER := less
+LDFLAGS += -g -ffreestanding -nostdlib -Wl,--no-gc-sections -mcmodel=small
 
 DEPFILES := $(wildcard bin/*.d)
 
 .PHONY: all
-all: rom
+all: rom bin/rom.dbg.elf
 
 bin/entry.o: src/entry.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
@@ -24,20 +27,27 @@ bin/mem.asm.o: src/mem.asm | bin
 bin/ivt.o: src/ivt.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/mem.o: src/mem.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding -fno-tree-loop-distribute-patterns $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP -fno-tree-loop-distribute-patterns $< -o $@
 bin/main.o: src/main.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/pic.o: src/pic.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/uart.o: src/uart.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/except.o: src/except.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/lcd.o: src/lcd.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP -mcmodel=small -ffreestanding $< -o $@
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+bin/gdb.o: src/gdb.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 
-bin/rom.elf: src/linker.ld bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o bin/lcd.o | bin
-	$(LD) -o$@ $(LDFLAGS) --no-check-sections -T $^
+BINS = bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o bin/lcd.o bin/gdb.o
+LIBS = -lgcc
+
+bin/rom.elf: src/linker.ld ${BINS} | bin
+	$(LD) -o$@ $(LDFLAGS) -Wl,--no-check-sections -T $^ ${LIBS}
+bin/rom.dbg.elf: src/linker.dbg.ld ${BINS} | bin
+	$(LD) -o$@ $(LDFLAGS) -Wl,--no-check-sections -Wl,-noinhibit-exec -T $^ ${LIBS} 2> /dev/null
 
 rom: bin/rom.elf | bin
 	@$(OBJCOPY) -O binary --gap-fill 0xff --pad-to 0x10000 bin/rom.elf rom
@@ -48,16 +58,16 @@ size: bin/rom.elf
 	@$(SIZE) -xB bin/rom.elf
 
 bin:
-	mkdir -p bin
+	@mkdir -p bin
 
 .PHONY: clean
 clean:
-	rm bin/*
-	rm rom
+	@rm bin/*
+	@rm rom
 
 .PHONY: disassemble
 disassemble: bin/rom.elf
-	ia16-elf-objdump -d bin/rom.elf  -M intel-mnemonic,i8086 | $(PAGER)
+	@$(OBJDUMP) -S -d bin/rom.elf -M intel-mnemonic,i8086 | $(PAGER)
 
 ifneq ($(DEPFILES),)
 include $(DEPFILES)

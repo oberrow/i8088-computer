@@ -20,7 +20,7 @@ define_isr_handler 1
 define_isr_handler 2
 define_isr_handler 3
 define_isr_handler 4
-define_isr_handler 32
+;define_isr_handler 32
 define_isr_handler 33
 define_isr_handler 34
 define_isr_handler 35
@@ -31,6 +31,14 @@ define_isr_handler 39
 define_isr_handler 40
 
 extern irq_handlers
+
+global impossible_isr
+
+impossible_isr:
+	cli
+.l:
+	hlt
+	jmp .l
 
 int_handler_common:
 	cld
@@ -51,7 +59,6 @@ int_handler_common:
 	mov bx, ss:[bp+18]
 	shl bx, 1
 	lea bx, [bx+irq_handlers]
-	push ds
 
 	xor ax,ax
 	mov ds, ax
@@ -60,6 +67,7 @@ int_handler_common:
 	push sp
 	mov bx, cs:[bx]
 	call bx
+	add sp, 2
 
 	pop ss
 	pop es

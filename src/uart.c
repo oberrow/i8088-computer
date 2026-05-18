@@ -32,7 +32,8 @@ int uart_init(int baud_rate, uint8_t stop_bits, uint8_t data_bits, uint8_t parit
         case 1200: divisor = 640; break;
         case 2400: divisor = 320; break;
         case 4800: divisor = 160; break;
-        case 9600: divisor = 80; break;
+        // case 9600: divisor = 80; break;
+        case 9600: divisor = 1; break;
         case 19200: divisor = 40; break;
         case 38400: divisor = 20; break;
         default: return 1;
@@ -57,7 +58,7 @@ int uart_init(int baud_rate, uint8_t stop_bits, uint8_t data_bits, uint8_t parit
     outb(UART_BASE + UART_IRQ_ENABLE, 1);
 
     // UART is on IRQ line 6.
-    pic_clear_mask(BIT(6));
+    pic_clear_mask(BIT(UART_IRQ_LINE));
 
     uart_state.initialized = true;
 
@@ -74,7 +75,7 @@ void uart_writeb(char c) {
     uart_write(&c, 1);
 }
 
-int uart_read(__far void* buf, int len, bool async) {
+int uart_read(void* buf, int len, bool async) {
     if (len > (int)sizeof(uart_state.buf))
         len = (int)sizeof(uart_state.buf);
     if (async) {
@@ -84,7 +85,7 @@ int uart_read(__far void* buf, int len, bool async) {
         if (!len)
             return 0;
 
-        memcpy(buf, &uart_state.buf[uart_state.in_ptr], len);
+        memcpy_far(FP_OFF(buf), 0, FP_OFF(&uart_state.buf[uart_state.in_ptr]), 0, len);
         uart_state.in_ptr += len;
         if (uart_state.in_ptr == uart_state.ptr)
             uart_state.ptr = uart_state.in_ptr = 0;
@@ -93,13 +94,13 @@ int uart_read(__far void* buf, int len, bool async) {
     }
 
     // Abort if interrupts are disabled.
-    if (get_flags() & BIT(9))
+    if (~get_flags() & BIT(9))
         return -1;
-
+    
     while ((uart_state.ptr - uart_state.in_ptr) < len)
         hlt();
 
-    memcpy(buf, &uart_state.buf[uart_state.in_ptr], len);
+    memcpy_far(FP_OFF(buf), 0, FP_OFF(&uart_state.buf[uart_state.in_ptr]), 0, len);
     uart_state.in_ptr += len;
     if (uart_state.in_ptr == uart_state.ptr)
         uart_state.ptr = uart_state.in_ptr = 0;
@@ -107,11 +108,11 @@ int uart_read(__far void* buf, int len, bool async) {
     return len;
 }
 
-int uart_write(__far const void* bufp, int len) {
+int uart_write(const void* bufp, int len) {
     __far const char* buf = bufp;
     for (int i = 0; i < len; i++) {
-        while (inb(UART_BASE+UART_LINE_STATUS) & BIT(5))
-            asm volatile("rep nop"); // technically pause, but that doesn't exist on 8088
+        // while (inb(UART_BASE+UART_LINE_STATUS) & BIT(5))
+        //     asm volatile("rep nop"); // technically pause, but that doesn't exist on 8088
         outb(UART_BASE+UART_IO_BUFFER, buf[i]);
     }
     

@@ -2,8 +2,8 @@ ENTRY(_entry)
 
 MEMORY {
     ram (rwx)  : ORIGIN = 0x0000, LENGTH = 64k
-    rom (rx)   : ORIGIN = 0x0000, LENGTH = 256K-16
-    rst (rx)   : ORIGIN = 0x3fff0, LENGTH = 16
+    rom (rx)   : ORIGIN = 0xc0000, LENGTH = 256K
+    rst (rx)   : ORIGIN = 0xffff0, LENGTH = 16
 }
 
 SECTIONS
