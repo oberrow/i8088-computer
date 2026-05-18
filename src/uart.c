@@ -20,24 +20,10 @@ static struct {
     uint16_t in_ptr : 9;
 } uart_state;
 
-int uart_init(int baud_rate, uint8_t stop_bits, uint8_t data_bits, uint8_t parity_bit) {
-    uint16_t divisor = 0;
-    switch (baud_rate) {
-        case 50: divisor = 15360; break;
-        case 75: divisor = 10240; break;
-        case 150: divisor = 5120; break;
-        case 200: divisor = 3840; break;
-        case 300: divisor = 2560; break;
-        case 600: divisor = 1280; break;
-        case 1200: divisor = 640; break;
-        case 2400: divisor = 320; break;
-        case 4800: divisor = 160; break;
-        // case 9600: divisor = 80; break;
-        case 9600: divisor = 1; break;
-        case 19200: divisor = 40; break;
-        case 38400: divisor = 20; break;
-        default: return 1;
-    }
+int uart_init(int baud_rate, uint8_t stop_bits, uint8_t data_bits, uint8_t parity_bit) {    
+    uint16_t divisor = 115200 / baud_rate;
+    if (divisor == 0)
+        return 1;
 
     // Code taken from OBOS.
     outb(UART_BASE + UART_IRQ_ENABLE, 0);
