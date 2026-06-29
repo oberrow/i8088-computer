@@ -267,7 +267,7 @@ static void gdbstub_memory_read(const char* payload, int len) {
 
     for (uint32_t i = 0; i < size; i++) {
         uint8_t b = 0;
-        memcpy_far(&b, 0, (void*)((address + i) & 0xffff), FP_SEG(address + i), 1);
+        memcpy_far(&b, 0, (void*)(uint16_t)((address + i) & 0xffff), FP_SEG(address + i), 1);
         response[i*2+0] = bin2hex[b >> 4];
         response[i*2+1] = bin2hex[b & 0xf];
     }
@@ -308,7 +308,7 @@ static void gdbstub_memory_write(const char* payload, int len) {
 
     for (uint32_t i = 0; i < size; i++) {
         uint8_t b = hex2bin(&data[i*2], 2);
-        memcpy_far((void*)((address + i) & 0xffff), FP_SEG(address + i), &b, 0, 1);
+        memcpy_far((void*)(uint16_t)((address + i) & 0xffff), FP_SEG(address + i), &b, 0, 1);
     }
 
     gdbstub_write("OK", 2);

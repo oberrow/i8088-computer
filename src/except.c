@@ -6,6 +6,7 @@
 
 #include "frame.h"
 #include "uart.h"
+#include "io.h"
 
 void except_div0(struct irq_frame* frame) {
     uart_write("DIV0 Exception!", 16);
@@ -13,6 +14,10 @@ void except_div0(struct irq_frame* frame) {
         asm volatile("hlt" :::"memory");
 }
 void except_nmi(struct irq_frame* frame) {
+#ifndef NO_PROBE
+    if (reprobe_io_bus())
+        return;
+#endif
     uart_write("NMI Received!", 14);
     while (1)
         asm volatile("hlt" :::"memory");

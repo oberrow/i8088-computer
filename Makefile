@@ -8,8 +8,8 @@ OBJCOPY := ia16-elf-objcopy
 OBJDUMP := ia16-elf-objdump
 SIZE := ia16-elf-size
 NASM := nasm
-NASMFLAGS += -g -F dwarf
-CFLAGS += -O0 -g -march=i8088 -mcmodel=small -ffreestanding
+NASMFLAGS += -g -F dwarf ${MACRO_DEFINITIONS}
+CFLAGS += -O0 -g -march=i8088 -mcmodel=small -ffreestanding ${MACRO_DEFINITIONS}
 PAGER := less
 LDFLAGS += -g -ffreestanding -nostdlib -Wl,--no-gc-sections -mcmodel=small
 
@@ -17,6 +17,7 @@ DEPFILES := $(wildcard bin/*.d)
 
 .PHONY: all
 all: rom bin/rom.dbg.elf
+	@echo Do not run this code on the breadboard version of this circuit unless you have made sure -DNO_PROBE=1 has been passed!
 
 bin/entry.o: src/entry.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
@@ -36,12 +37,16 @@ bin/uart.o: src/uart.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/except.o: src/except.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
-bin/lcd.o: src/lcd.c | bin
-	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/gdb.o: src/gdb.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+bin/probe.o: src/probe.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+bin/lcd.o: src/lcd.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+bin/i8255.o: src/i8255.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 
-BINS = bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o bin/lcd.o bin/gdb.o
+BINS = bin/entry.o bin/main.o bin/io.o bin/mem.o bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o bin/uart.o bin/gdb.o bin/probe.o bin/lcd.o bin/i8255.o
 LIBS = -lgcc
 
 bin/rom.elf: src/linker.ld ${BINS} | bin

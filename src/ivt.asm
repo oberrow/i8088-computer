@@ -15,6 +15,8 @@ isr%1:
 	jmp int_handler_common
 %endmacro
 
+global timer_irq
+
 define_isr_handler 0
 define_isr_handler 1
 define_isr_handler 2
@@ -66,7 +68,11 @@ int_handler_common:
 
 	push sp
 	mov bx, cs:[bx]
+	cmp bx, 0
+	je .abort
 	call bx
+
+.abort:
 	add sp, 2
 
 	pop ss
@@ -82,3 +88,24 @@ int_handler_common:
 	add sp, 2
 	pop ax
 	iret
+
+%ifdef NO_PROBE
+; IRQ Line 0 is connected to a 1000hz square wave.
+timer_irq:
+    push ax
+    push dx
+    mov al, 0x20
+    mov dx, 0x20
+    out dx, al
+    pop dx
+    pop ax
+    add [current_tick_ms], 1
+    adc [current_tick_ms+2], 0
+    iret
+%else
+timer_irq:
+	push ax
+	mov ax, 0x20
+	push ax
+	jmp int_handler_common
+%endif

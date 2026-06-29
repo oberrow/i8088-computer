@@ -15,15 +15,15 @@
 
 void pic_init() {
     // ICW1
-    outb(PIC_BASE, 0x13);
+    outb(bus_info.pic->base, 0x13);
     // ICW2
-    outb(PIC_BASE+1, 0x20); // Vectors start at 0x20
+    outb(bus_info.pic->base+1, 0x20); // Vectors start at 0x20
     // ICW4 (ICW3 skipped)
-    outb(PIC_BASE+1, 0x01);
+    outb(bus_info.pic->base+1, 0x01);
 }
 
 void pic_eoi() {
-    outb(PIC_BASE, 0x20);
+    outb(bus_info.pic->base, 0x20);
 }
 
 void pic_mask(uint8_t mask) {
@@ -34,21 +34,21 @@ void pic_clear_mask(uint8_t mask) {
 }
 
 void pic_set_mask(uint8_t mask) {
-    outb(PIC_BASE+1, mask);
+    outb(bus_info.pic->base+1, mask);
 }
 
 uint8_t pic_get_mask(void) {
-    return inb(PIC_BASE+1);
+    return inb(bus_info.pic->base+1);
 }
 
 uint8_t pic_get_irr(void) {
-    outb(PIC_BASE, 0b1010);
-    return inb(PIC_BASE);
+    outb(bus_info.pic->base, 0b1010);
+    return inb(bus_info.pic->base);
 }
 
 uint8_t pic_get_isr(void) {
-    outb(PIC_BASE, 0b1011);
-    return inb(PIC_BASE);
+    outb(bus_info.pic->base, 0b1011);
+    return inb(bus_info.pic->base);
 }
 
 void except_div0(struct irq_frame* frame);
@@ -65,13 +65,12 @@ void spurious_irq(struct irq_frame* frame)
     pic_spurious_irq_count++;
 }
 
-__attribute__((section(".flash"))) void(*const irq_handlers[])(struct irq_frame* frame) = {
+void(*irq_handlers[])(struct irq_frame* frame) = {
     except_div0,
     except_trap,
     except_nmi,
     except_bp,
     except_overflow,
-    [32+UART_IRQ_LINE] = uart_irq,
     [32]=0, 0, 0, 0, 0, 0,
     [32+7] = spurious_irq
 };

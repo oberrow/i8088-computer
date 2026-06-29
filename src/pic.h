@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "frame.h"
 
 void pic_init();
 void pic_eoi();
@@ -20,3 +21,5 @@ uint8_t pic_get_isr(void);
 void ivt_init();
 
 extern uint16_t pic_spurious_irq_count;
+
+extern void(*irq_handlers[])(struct irq_frame* frame);

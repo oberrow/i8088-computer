@@ -21,17 +21,20 @@ static bool wait_for_bf()
     // Wait 20ms for initialization
     do {
         delay_ms(1);
-    } while (ms_passed++ < 10 && inb(LCD_BASE) & BIT(7) /* Busy flag */);
-    return ~inb(LCD_BASE) & BIT(7);
+    } while (ms_passed++ < 10 && inb(bus_info.lcd->base) & BIT(7) /* Busy flag */);
+    return ~inb(bus_info.lcd->base) & BIT(7);
 }
 
 void lcd_init() {
+    if (!bus_info.lcd)
+        return;
+
     delay_ms(15);
-    outb(LCD_BASE, 0x30);
+    outb(bus_info.lcd->base, 0x30);
     delay_ms(41);
-    outb(LCD_BASE, 0x30);
+    outb(bus_info.lcd->base, 0x30);
     delay_cycles(US_IN_CYCLES(100));
-    outb(LCD_BASE, 0x30);
+    outb(bus_info.lcd->base, 0x30);
     lcd_function_set(LCD_8BIT_IFACE, LCD_TWO_LINES, LCD_5x10_FONT);
     lcd_display_ctrl(false, false, false);
     lcd_entry_mode_set(LCD_CURSOR_DIR_INCREMENT, LCD_SHIFT_CURSOR);
@@ -43,26 +46,38 @@ void lcd_init() {
 }
 
 void lcd_clear() {
+    if (!bus_info.lcd)
+        return;
+
     wait_for_bf();
-    outb(LCD_BASE, 0x1);
+    outb(bus_info.lcd->base, 0x1);
 }
 
 void lcd_return_home() {
+    if (!bus_info.lcd)
+        return;
+
     wait_for_bf();
-    outb(LCD_BASE, 0x2);
+    outb(bus_info.lcd->base, 0x2);
 }
 
 void lcd_entry_mode_set(bool cursor_direction, bool shift) {
+    if (!bus_info.lcd)
+        return;
+
     uint8_t flags = 0;
     if (cursor_direction) 
         flags |= BIT(1);
     if (shift) 
         flags |= BIT(0);
     wait_for_bf();
-    outb(LCD_BASE, 0x4 | flags);
+    outb(bus_info.lcd->base, 0x4 | flags);
 }
 
 void lcd_display_ctrl(bool display, bool cursor, bool blink) {
+    if (!bus_info.lcd)
+        return;
+
     uint8_t flags = 0;
     if (display) 
         flags |= BIT(2);
@@ -71,20 +86,26 @@ void lcd_display_ctrl(bool display, bool cursor, bool blink) {
     if (blink)
         flags |= BIT(0);
     wait_for_bf();
-    outb(LCD_BASE, 0x8 | flags);
+    outb(bus_info.lcd->base, 0x8 | flags);
 }
 
 void lcd_cursor_shift(bool dir, bool shift_what) {
+    if (!bus_info.lcd)
+        return;
+
     uint8_t flags = 0;
     if (shift_what)
         flags |= BIT(3);
     if (dir) 
         flags |= BIT(2);
     wait_for_bf();
-    outb(LCD_BASE, 0x10 | flags);
+    outb(bus_info.lcd->base, 0x10 | flags);
 }
 
 void lcd_function_set(bool data_length, bool line_count, bool font_type) {
+    if (!bus_info.lcd)
+        return;
+
     uint8_t flags = 0;
     if (data_length) 
         flags |= BIT(4);
@@ -93,28 +114,34 @@ void lcd_function_set(bool data_length, bool line_count, bool font_type) {
     if (font_type)
         flags |= BIT(2);
     wait_for_bf();
-    outb(LCD_BASE, 0x20 | flags);
+    outb(bus_info.lcd->base, 0x20 | flags);
 }
 
 
 void lcd_write_byte(uint8_t address, char byte, bool ddram) {
-    wait_for_bf();
-    if (ddram)
-        outb(LCD_BASE, (address & 0x3f) | BIT(7));
-    else
-        outb(LCD_BASE, (address & 0x1f) | BIT(6));
+    if (!bus_info.lcd)
+        return;
 
     wait_for_bf();
-    outb(LCD_BASE+1, byte);
+    if (ddram)
+        outb(bus_info.lcd->base, (address & 0x3f) | BIT(7));
+    else
+        outb(bus_info.lcd->base, (address & 0x1f) | BIT(6));
+
+    wait_for_bf();
+    outb(bus_info.lcd->base+1, byte);
 }
 
 char lcd_read_byte(uint8_t address, bool ddram) {
-    wait_for_bf();
-    if (ddram)
-        outb(LCD_BASE, (address & 0x3f) | BIT(7));
-    else
-        outb(LCD_BASE, (address & 0x1f) | BIT(6));
+    if (!bus_info.lcd)
+        return 0xff;
 
     wait_for_bf();
-    return inb(LCD_BASE+1);
+    if (ddram)
+        outb(bus_info.lcd->base, (address & 0x3f) | BIT(7));
+    else
+        outb(bus_info.lcd->base, (address & 0x1f) | BIT(6));
+
+    wait_for_bf();
+    return inb(bus_info.lcd->base+1);
 }
