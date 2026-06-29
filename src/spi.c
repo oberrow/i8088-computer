@@ -54,3 +54,17 @@ uint8_t spi_tx(spi_device tgt, uint8_t x) {
 
     return resp;
 }
+
+void spi_pulse(spi_device tgt, int count) {
+    // Write CS LOW
+    i8255_write_port(i8255_PORTB, ~tgt);
+    
+    for (int i = count; i >= 0; i--) {
+        i8255_write_pin(SPI_MOSI, true);
+        i8255_write_pin(SPI_CLK, i8255_HIGH);
+        i8255_write_pin(SPI_CLK, i8255_LOW);
+    }
+
+    // Write CS HIGH
+    i8255_write_port(i8255_PORTB, 0xff);
+}
