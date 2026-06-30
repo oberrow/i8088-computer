@@ -34,6 +34,10 @@ static void slot_create(uint8_t slot, uint8_t irq_line, uint16_t base, uint8_t t
             bus_info.i8255 = &bus_info.slots[slot];
             i8255_port_mode(i8255_PORTC_upper, i8255_DIR_OUTPUT);
             break;
+        case DEVICE_CLASS_i8259_PIC:
+            if (bus_info.pic) break;
+            bus_info.pic = &bus_info.slots[slot];
+            break;
         case DEVICE_CLASS_TIMER:
             if (bus_info.timer) break;
             bus_info.timer = &bus_info.slots[slot];
@@ -53,15 +57,23 @@ static void slot_present(uint8_t slot) {
 void probe_io_bus() {
 #ifdef NO_PROBE
     slot_create(6, 0xff, 0x100, DEVICE_CLASS_i8259_PIC);
+
+    pic_init();
+    pic_mask(0xff);
+
     slot_create(0, 0, 0, DEVICE_CLASS_TIMER);
     slot_create(1, 6, 0x200, DEVICE_CLASS_16550_UART);
-    slot_create(2, 0xff, 0x400, DEVICE_CLASS_LCD);
+    // slot_create(2, 0xff, 0x400, DEVICE_CLASS_LCD);
+    bus_info.active_slot_count = 3;
     bus_info.ram_size = 0x10000;
     return;
 #else
     uint8_t probe = inb(SYSTEM_PROBE_BASE) >> 2;
     
     slot_create(6, 0xff, IO_SLOT_ADDRESS(7), DEVICE_CLASS_i8259_PIC);
+
+    pic_init();
+    pic_mask(0xff);
 
     for (int i = 0; i < 6; i++) {
         if (probe & BIT(i)) {
@@ -73,7 +85,7 @@ void probe_io_bus() {
         }
     }
 
-    bus_info.ram_size = 0x8000;
+    bus_info.ram_size = 0x10000;
 
     char *ch = NULL;
 
@@ -88,7 +100,7 @@ void probe_io_bus() {
         if (cur == *ch)
             break;
 
-        bus_info.ram_size += 0x8000;
+        bus_info.ram_size += 0x10000;
     }
 
     bus_info.probe_port_value = probe;
@@ -122,6 +134,16 @@ bool reprobe_io_bus()
                 status = true;
             }
             bus_info.active_slot_count++;
+        }
+        else {
+            if (bus_info.slots[i].on_detach)
+                bus_info.slots[i].on_detach(bus_info.slots[i].userdata);
+            bus_info.slots[i].base = 0;
+            bus_info.slots[i].type = 0;
+            bus_info.slots[i].on_detach = NULL;
+            bus_info.slots[i].userdata = NULL;
+            bus_info.slots[i].irq_line = 0;
+            bus_info.slots[i].slot_idx = 0;
         }
     }
 
