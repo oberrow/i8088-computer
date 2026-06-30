@@ -12,6 +12,8 @@ global set_es
 memcpy_far:
     push bp
     mov bp, sp
+    push di
+    push si
 
     mov di, ss:[bp+0x4]
     mov ax, ss:[bp+0x6]
@@ -24,6 +26,8 @@ memcpy_far:
     
     mov ax, ss:[bp+0x4]
 
+    pop si
+    pop di
     mov sp, bp
     pop bp
     ret
