@@ -25,6 +25,8 @@ bin/io.o: src/io.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/mem.asm.o: src/mem.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
+bin/boot.o: src/boot.asm | bin
+	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/ivt.o: src/ivt.asm | bin
 	$(NASM) $(NASMFLAGS) -MP -MD $(@:.o=.d) -felf32 $< -o $@
 bin/mem.o: src/mem.c | bin
@@ -52,10 +54,11 @@ bin/sd.o: src/sd.c | bin
 bin/external.crc7.o: src/external/crc7.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 
-BINS = bin/entry.o bin/main.o bin/io.o bin/mem.o\
-	   bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o\
-	   bin/uart.o bin/gdb.o bin/probe.o bin/lcd.o\
-	   bin/i8255.o bin/spi.o bin/sd.o bin/external.crc7.o
+BINS = bin/entry.o bin/main.o bin/io.o bin/mem.o \
+	   bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o \
+	   bin/uart.o bin/gdb.o bin/probe.o bin/lcd.o \
+	   bin/i8255.o bin/spi.o bin/sd.o bin/external.crc7.o \
+	   bin/boot.o
 LIBS = -lgcc
 
 bin/rom.elf: src/linker.ld ${BINS} | bin

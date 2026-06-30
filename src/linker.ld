@@ -1,7 +1,8 @@
 ENTRY(_entry)
 
 MEMORY {
-    ram (rwx)  : ORIGIN = 0x0000, LENGTH = 64k
+    ram (rwx)  : ORIGIN = 0x0000, LENGTH = 64k-512
+    ldr (rwx)  : ORIGIN = 0xfe00, LENGTH = 512 
     rom (rx)   : ORIGIN = 0x0000, LENGTH = 256K-16
     rst (rx)   : ORIGIN = 0x3fff0, LENGTH = 16
 }
@@ -11,7 +12,6 @@ SECTIONS
     _bss_begin = .;
     .bss (NOLOAD) : {
         *(.ivt)
-        *(.stack)
         *(.bss)
         *(.bss.*)
         *(COMMON)
@@ -25,6 +25,12 @@ SECTIONS
         __data_end = .;
         . = ALIGN(4);
     } >ram AT >rom
+    .bss (NOLOAD) : {
+        *(.stack)
+    } > ram
+    .btldr : {
+        *(.btldr)
+    } >ldr
     __data_loadaddr = LOADADDR(.data);
     .text : { *(.text) *(.text.*) } > rom
     .flash : { *(.flash) *(.flash.*) } > rom

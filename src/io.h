@@ -74,6 +74,8 @@ enum {
     // Simply produced here so the io_slot.type
     // field makes sense.
     DEVICE_CLASS_i8259_PIC = 0xfe,
+    // Not a valid type from the motherboard.
+    DEVICE_CLASS_PROBE = 0xfd,
     DEVICE_CLASS_TIMER = 0x1,
     DEVICE_CLASS_16550_UART,
     DEVICE_CLASS_i8255A_GPIO,

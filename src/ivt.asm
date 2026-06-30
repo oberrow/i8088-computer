@@ -67,7 +67,7 @@ int_handler_common:
 	mov es, ax
 
 	push sp
-	mov bx, cs:[bx]
+	mov bx, ds:[bx]
 	cmp bx, 0
 	je .abort
 	call bx
@@ -90,6 +90,7 @@ int_handler_common:
 	iret
 
 %ifdef NO_PROBE
+extern current_tick_ms
 ; IRQ Line 0 is connected to a 1000hz square wave.
 timer_irq:
     push ax
