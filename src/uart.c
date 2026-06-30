@@ -76,7 +76,7 @@ void uart_writeb(char c) {
 }
 
 int uart_read(void* buf, int len, bool async) {
-    if (!bus_info.uart)
+    if (!uart_state.initialized)
         return -1;
 
     if (len > (int)sizeof(uart_state.buf))
@@ -128,8 +128,9 @@ int uart_write(const void* bufp, int len) {
 void uart_irq(struct irq_frame* frame) {
     (void)frame;
     uint16_t flags = clis();
+    uint16_t base = bus_info.uart->base + UART_IO_BUFFER;
     while (inb(bus_info.uart->base + UART_LINE_STATUS) & BIT(0)) {
-        char data = inb(bus_info.uart->base + UART_IO_BUFFER);
+        char data = inb(base);
         if (uart_state.ptr < sizeof(uart_state.buf))
             uart_state.buf[uart_state.ptr++] = data;
     }
