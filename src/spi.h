@@ -11,11 +11,11 @@
 typedef uint8_t spi_device;
 
 // PORTC Upper
-#define SPI_MOSI (23)
+#define SPI_MOSI (22)
 // PORTC Lower
 #define SPI_MISO (19)
 // PORTC Upper
-#define  SPI_CLK (22)
+#define  SPI_CLK (21)
 
 void spi_initialize();
 // cs_gpio should be on PORTB
