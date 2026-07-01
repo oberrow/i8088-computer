@@ -20,5 +20,7 @@ typedef uint8_t spi_device;
 void spi_initialize();
 // cs_gpio should be on PORTB
 spi_device spi_initialize_device(uint8_t cs_gpio);
-uint8_t spi_tx(spi_device tgt, uint8_t x);
-void spi_pulse(spi_device tgt, int count);
+uint8_t spi_tx(uint8_t x);
+void spi_pulse(int count);
+void spi_select(spi_device tgt);
+void spi_deselect(void);
