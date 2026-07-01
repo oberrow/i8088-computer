@@ -54,6 +54,31 @@ static void slot_present(uint8_t slot) {
     slot_create(slot, slot, IO_SLOT_ADDRESS(slot), inb(IO_SLOT_CLASS(slot)));
 }
 
+static void probe_ram_size() {
+    bus_info.ram_size = 0x10000;
+
+    cli();
+    char *ch = NULL;
+    char old_ch = *ch;
+    *ch = 0xad;
+
+    while (bus_info.ram_size <= 0xc0000) {
+        char cur = 0;
+ 
+        memcpy_far(&cur, 0, (void*)(uint16_t)bus_info.ram_size, bus_info.ram_size >> 4, 1);
+        
+        // When the address space starts to repeat itself, assume the RAM has ended.
+        if (cur == *ch)
+            break;
+
+        bus_info.ram_size += 0x10000;
+    }
+
+    *ch = old_ch;
+    
+    sti();
+}
+
 void probe_io_bus() {
 #ifdef NO_PROBE
     slot_create(6, 0xff, 0x100, DEVICE_CLASS_i8259_PIC);
@@ -65,7 +90,7 @@ void probe_io_bus() {
     slot_create(1, 6, 0x200, DEVICE_CLASS_16550_UART);
     // slot_create(2, 0xff, 0x400, DEVICE_CLASS_LCD);
     bus_info.active_slot_count = 3;
-    bus_info.ram_size = 0x10000;
+    probe_ram_size();
     return;
 #else
     uint8_t probe = inb(SYSTEM_PROBE_BASE) >> 2;
@@ -85,23 +110,7 @@ void probe_io_bus() {
         }
     }
 
-    bus_info.ram_size = 0x10000;
-
-    char *ch = NULL;
-
-    while (bus_info.ram_size <= 0xc0000) {
-        char cur = 0;
- 
-        // TODO: Write a byte into this address in case two places in RAM
-        // have the same values, but are still separate
-        memcpy_far(&cur, 0, (void*)(uint16_t)bus_info.ram_size, bus_info.ram_size >> 4, 1);
-        
-        // When the address space starts to repeat itself, assume the RAM has ended.
-        if (cur == *ch)
-            break;
-
-        bus_info.ram_size += 0x10000;
-    }
+    probe_ram_size();
 
     bus_info.probe_port_value = probe;
 #endif
