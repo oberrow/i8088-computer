@@ -47,18 +47,22 @@ bin/lcd.o: src/lcd.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/i8255.o: src/i8255.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
-bin/spi.o: src/spi.c | bin
+bin/spi_bitbang.o: src/spi_bitbang.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/sd.o: src/sd.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 bin/external.crc7.o: src/external/crc7.c | bin
 	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+bin/shell.o: src/shell.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
+bin/spi.o: src/spi.c | bin
+	$(CC) -c $(CFLAGS) -MMD -MP $< -o $@
 
 BINS = bin/entry.o bin/main.o bin/io.o bin/mem.o \
 	   bin/mem.asm.o bin/pic.o bin/ivt.o bin/except.o \
 	   bin/uart.o bin/gdb.o bin/probe.o bin/lcd.o \
-	   bin/i8255.o bin/spi.o bin/sd.o bin/external.crc7.o \
-	   bin/boot.o
+	   bin/i8255.o bin/spi_bitbang.o bin/sd.o bin/external.crc7.o \
+	   bin/boot.o bin/shell.o bin/spi.o
 LIBS = -lgcc
 
 bin/rom.elf: src/linker.ld ${BINS} | bin

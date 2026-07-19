@@ -11,7 +11,6 @@
 #include "spi.h"
 #include "uart.h"
 #include "extra.h"
-#include "i8255.h"
 #include "sd.h"
 #include "mmap.h"
 
@@ -110,15 +109,9 @@ __attribute__((noreturn)) void entry() {
 
     // Initialize SPI
     spi_initialize();
-
-#if !GDBSTUB
-    if (bus_info.i8255)
-        uart_write("Initialized SPI. MISO: GPIO.19, CLK: GPIO.22, MOSI: GPIO.23\n", 60);
-#endif
-
+    
     memory_map_initialize();
     io_map_initialize();
-
 
     if (sd_initialize(spi_initialize_device(8), &sd_cards[0]) == 0)
         sd_cards_present |= BIT(0);

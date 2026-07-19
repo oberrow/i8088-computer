@@ -57,6 +57,7 @@ extern struct sys_bus_info {
     struct io_slot *lcd;
     struct io_slot *timer;
     struct io_slot *i8255;
+    struct io_slot *spi;
 } bus_info;
 
 // Reading from an I/O slot that is not returned present by
@@ -80,6 +81,7 @@ enum {
     DEVICE_CLASS_16550_UART,
     DEVICE_CLASS_i8255A_GPIO,
     DEVICE_CLASS_LCD,
+    DEVICE_CLASS_SPI_CONTROLLER,
 };
 
 #define trigger_reset() i8255_write_pin(23, i8255_HIGH)

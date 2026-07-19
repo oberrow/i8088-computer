@@ -4,77 +4,77 @@
  * Copyright (c) 2026 Omar Berrow
 */
 
+#ifndef SPI_BITBANG
 #include <stdint.h>
 #include <stdbool.h>
 #include "spi.h"
-#include "i8255.h"
 #include "io.h"
 #include "uart.h"
+#include "frame.h"
+#include "pic.h"
 
-bool spi_exists = false;
+// Slave Data Register
+#define SDR 0x0
+// Status & Control Register
+#define SCR 0x1
 
-void spi_initialize()
-{
-    if (!bus_info.i8255)
-        return;
-    if (spi_exists)
-        return;
-    spi_exists = true;
-    i8255_port_mode(i8255_PORTC_lower, i8255_DIR_INPUT);
-    i8255_port_mode(i8255_PORTC_upper, i8255_DIR_OUTPUT);
-    i8255_port_mode(i8255_PORTB, i8255_DIR_OUTPUT);
-    i8255_write_port(i8255_PORTB, 0xff);
+// Read-only bit
+#define SCR_BUSY BIT(7)
+
+// Write-only bits
+#define SCR_LOOPBACK BIT(7)
+
+// RW Bits
+#define SCR_FLOW_CTRL BIT(0)
+#define SCR_INTM BIT(1)
+#define SCR_CS_MASK 0x7c
+
+static uint8_t base = 0;
+
+static void spi_irq(struct irq_frame* frame) {
+    pic_eoi();
 }
 
-spi_device spi_initialize_device(uint8_t cs_gpio) {
-    if (cs_gpio < 8 || cs_gpio >= 16)
-        return 0xff;
-    if (!spi_exists)
-        return 0xff;
-    return 1 << (cs_gpio - 8);
+void spi_initialize() {
+    if (!bus_info.spi)
+        return;
+    base = bus_info.spi->base;
+    irq_handlers[bus_info.spi->irq_line + 0x20] = spi_irq;
+    uart_write("Initialized SPI controller\n", 60);
 }
 
-// TODO: Rewrite in assembly?
+// cs_idx is otherwise a value from 0 to 4 for chip select
+spi_device spi_initialize_device(uint8_t cs_idx) {
+    if (cs_idx >= 5)
+        return (spi_device)-1;
+    return 1 << (cs_idx+2);
+}
+
 uint8_t spi_tx(uint8_t x) {
-    uint8_t resp = 0;
-    
-    for (int8_t i = 7; i >= 0; i--) {
-        i8255_write_pin(SPI_MOSI, !!((x >> i) & 1));
-        asm volatile ("nop;nop;":::"memory");
-        i8255_write_pin(SPI_CLK, i8255_HIGH);
-        
-        if (i8255_read_pin(SPI_MISO))
-            resp |= (1 << i);
-
-        asm volatile ("nop;nop;":::"memory");
-        
-        i8255_write_pin(SPI_CLK, i8255_LOW);
-        asm volatile ("nop;nop;":::"memory");
-    }
-
-    return resp;
+    cli();
+    uint8_t scr = inb(base+SCR);
+    outb(base + SDR, x);
+    outb(base + SCR, scr |= SCR_FLOW_CTRL);
+    sti();
+    while (inb(base + SCR) & SCR_BUSY)
+        hlt();
+    outb(base + SCR, scr &= ~SCR_FLOW_CTRL);
+    return inb(base + SDR);
 }
 
 void spi_pulse(int count) {
-    for (int i = count; i >= 0; i--) {
-        i8255_write_pin(SPI_MOSI, true);
-        asm volatile ("nop;nop;":::"memory");
-        i8255_write_pin(SPI_CLK, i8255_HIGH);
-        asm volatile ("nop;nop;":::"memory");
-        i8255_write_pin(SPI_CLK, i8255_LOW);
-        asm volatile ("nop;nop;":::"memory");
-    }
+    count = (count + 7) & ~7;
+
+    for (int i = 0; i < count; i++)
+        spi_tx(0xff);
 }
 
-static bool spi_selected = false;
 void spi_select(spi_device tgt) {
-    i8255_write_port(i8255_PORTB, ~tgt);
-    spi_selected = true;
-    asm volatile ("nop;nop;":::"memory");
+    outb(base + SCR, tgt);
 }
 
 void spi_deselect(void) {
-    spi_selected = false;
-    i8255_write_port(i8255_PORTB, 0xff);
-    asm volatile ("nop;nop;":::"memory");
+    outb(base + SCR, 0);
 }
+
+#endif
