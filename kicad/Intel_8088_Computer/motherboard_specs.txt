@@ -1,0 +1,61 @@
+I/O Peripheral Connector
+
+Pin 1: CS (H->D)
+Pin 2: RD (H->D)
+Pin 3: WR (H->D)
+Pin 4: Interrupt Request (D->H)
+Pins 5-16: A0..11 (H->D)
+Pin 17: Device ID Select (H->D)
+Pin 18-25: D0..7 (Bidirectional)
+Pin 26: Reset (Active Low, Bidirectional)
+Pin 27: VCC (H->D)
+Pin 28: GND (H->D)
+
+Memory Connector:
+
+Pin 1: RD (H->D)
+Pin 2: WR (H->D)
+Pin 3: RAM1 CS (H->D)
+Pin 4: RAM2 CS (H->D)
+Pin 5: ROM CS, (inversed is RAM CS) RAM CS (H->D)
+Pin 6-23: A0..17 (H->D)
+Pin 24: N.C.
+Pins 25-32: D0..7 (Bidirectional)
+Pin 33: VCC (H->D)
+Pin 34: GND (H->D)
+
+USB Connector:
+
+Pin 1: GND
+Pin 2: D+
+Pin 3: D-
+Pin 4: GND
+Pin 5: VCC
+
+SPI Module Pins:
+
+Pin 1: CS0*
+Pin 2: CS1*
+Pin 3: CS2*
+Pin 4: CS3*
+Pin 5: CS4*
+Pin 6: MOSI*
+Pin 7: MISO*
+Pin 8: SCK*
+Pin 9: VCC
+Pin 10: GND
+
+*Pins are floated in loopback mode, use pull-down resistors for any circuit this is connected to.
+
+Switch Array:
+
+Device connected if switch flipped on, device disconnected if switch flipped off
+
+Switch 1: Memory Slot #1
+Switch 2: Memory Slot #2
+Switch 3: I/O Slot #1
+Switch 4: I/O Slot #2
+Switch 5: I/O Slot #3
+Switch 6: I/O Slot #4
+Switch 7: I/O Slot #5
+Switch 8: I/O Slot #6

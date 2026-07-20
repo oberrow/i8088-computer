@@ -1,0 +1,61 @@
+Registers:
+
+RW 0x0: Slave Data Register (SDR)
+RW 0x1: Status & Control Register (SCR)
+
+Slave Data Register (SDR):
+
+RO: Bits 0-7: Read slave response
+WO: Bits 0-7: Write byte to slave
+
+Status & Control Register:
+
+RW: Bit 0: Flow control (FC):
+Set to 0b0 to inhibit data flow
+Set to 0b1 to enable shift registers and to start communication with the slave
+
+RW: Bit 1: Interrupt Mask (IM):
+If set to zero, interrupts enabled
+
+RW: Bits 2-6: Chip Select (CSx):
+Selects a slave.
+Only one bit can be set at a time, otherwise bus contention will occur.
+
+WO: D7: Loopback Enable (LE):
+Enables loopback mode on the receiver.
+All SPI lines will be floated, and MISO will be connected to MOSI
+
+RO D7: Busy Flag (BF):
+
+The definition of this register depends on whether data flow is enabled
+or disabled.
+
+If data flow is inhibited (bit 0 set), then this bit will always be zero.
+If data flow is enabled (bit 0 clear), then this bit will be zero if the
+transmitter is busy, and will turn to one when it is finished
+communication with the slave.
+
+Functional description:
+
+This device has no initialization sequence.
+
+Data Transmission:
+To send a byte, write it into the SDR register, then set SCR.FC to one. Afterwards, poll SCR.BF, or alternatively wait for an IRQ
+to signify TX finish, and the slave response will be in the SDR.
+To choose between data transmission between slaves, use the CSx registers, with bit 2 being CS0, and bit 6 being CS5.
+If multiple chips are selected, bus contention occurs, causing short circuits, and possibly damaging the hardware.
+DO NOT DO THAT.
+
+Loopback mode:
+In loopback mode, the controller floats all external bus lines, and connects MISO to MOSI.
+All data transmitted will be bounced back to the controller, meaning a read from SDR will
+yield the last byte written to SDR.
+Normal transmission operation is still required for loopback mode to work.
+
+Manual probing is required to test what devices exist on the SPI bus, unlike with the
+I/O and memory bus.
+
+Timing:
+
+Register read timings are the same as that of the 74HCT540. Register write timings are the same as that of the 74ACT563.
+The SPI Bus runs at 200kHz, but can be pushed to the theoretical limits of the LMC555 timer (if the capacitor and resistors are swapped for something else)
